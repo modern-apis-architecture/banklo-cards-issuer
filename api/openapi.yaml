@@ -1,0 +1,302 @@
+openapi: 3.0.0
+info:
+  title: Banklo - Cards issuer APIs
+  version: 1.0.0
+  description: Banklo - Cards issuer APIs
+paths:
+  '/cards/{id}/subscribe':
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - url
+                - token
+              type: object
+              properties:
+                url:
+                  format: uri
+                  type: string
+                token:
+                  type: string
+        required: true
+      callbacks:
+        notification:
+          '{$request.body#/url}?token={$request.body#/token}':
+            post:
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/notification'
+                required: true
+              responses:
+                '200':
+                  content:
+                    text/plain:
+                      examples:
+                        ok:
+                          value: ok
+                  description: Notification successfully processed
+              summary: Receive single notification about a parcel
+      tags:
+        - cards-webhook
+      responses:
+        '202':
+          content:
+            text/plain:
+              examples:
+                ok:
+                  value: ok
+          description: Successfully subscribed to notifications about given cards
+      summary: Subscribe to notifications about given card
+    parameters:
+      -
+        name: id
+        description: The card identifier
+        schema:
+          $ref: '#/components/schemas/card_id'
+        in: path
+        required: true
+  /accounts:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/create-account-request'
+        required: true
+      tags:
+        - accounts
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/create-account-response'
+          description: Acoount created
+      operationId: create-account
+      summary: It creates accounts
+  '/accounts/{id}/cards':
+    post:
+      parameters:
+        -   name: id
+            description: The account identifier
+            schema:
+              $ref: '#/components/schemas/card_id'
+            in: path
+            required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/create-card-request'
+        required: true
+      tags:
+        - cards
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/create-card-response'
+          description: Card creation will be processed
+      operationId: create-cards
+      summary: It creates cards
+  '/accounts/{id}':
+    get:
+      parameters:
+        -   name: id
+            description: The account identifier
+            schema:
+              $ref: '#/components/schemas/card_id'
+            in: path
+            required: true
+      tags:
+        - accounts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/account-response'
+          description: Account details
+      operationId: get-account
+      summary: Get account details
+  '/cards/{id}':
+    get:
+      parameters:
+        -   name: id
+            description: The account identifier
+            schema:
+              $ref: '#/components/schemas/card_id'
+            in: path
+            required: true
+      tags:
+        - cards
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/card-response'
+          description: Card details
+      operationId: get-card
+      summary: Get card details
+    delete:
+      parameters:
+        -   name: id
+            description: The account identifier
+            schema:
+              $ref: '#/components/schemas/card_id'
+            in: path
+            required: true
+      tags:
+        - cards
+      responses:
+        '204':
+          description: Card deleted
+      operationId: delete-card
+components:
+  schemas:
+    card_id:
+      pattern: '`^[[:xdigit:]]{8}(?:\-[[:xdigit:]]{4}){3}\-[[:xdigit:]]{12}$`gm'
+      type: string
+    notification:
+      required:
+        - card_id
+        - status
+      type: object
+      properties:
+        card_id:
+          $ref: '#/components/schemas/card_id'
+        status:
+          enum:
+            - created
+            - denied
+          type: string
+    create-account-request:
+      title: Root Type for create-account-request
+      description: ''
+      type: object
+      properties:
+        personal_data:
+          type: object
+          properties:
+            name:
+              type: string
+            last_name:
+              type: string
+            mother_name:
+              type: string
+            document:
+              type: string
+            birth_date:
+              format: date
+              type: string
+            address:
+              type: object
+              properties:
+                zip_code:
+                  type: string
+                number:
+                  type: string
+            phone:
+              type: object
+              properties:
+                code:
+                  type: string
+                number:
+                  type: string
+      example:
+        personal_data:
+          name: Joe
+          last_name: Doe
+          mother_name: Mary Joe
+          document: '20892e8989'
+          birth_date: '1985-12-09'
+          address:
+            zip_code: 12324-900
+            number: '35'
+          phone:
+            code: '19'
+            number: 22222-3333
+    create-card-request:
+      title: Root Type for create-card-request
+      description: ''
+      type: object
+      properties:
+        valid_until:
+          format: date
+          type: string
+      example:
+        valid_until: '2020-04-08'
+    create-account-response:
+      title: Root Type for create-account-response
+      description: ''
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+      example:
+        id: 2c54c06b-04b6-420a-820f-f2a9dda6af2f
+        status: created
+    create-card-response:
+      title: Root Type for create-card-response
+      description: ''
+      type: object
+      properties:
+        id:
+          type: string
+      example:
+        id: 171b6513-a51e-4f7a-ba87-23b8e95b8f4b
+    account-response:
+      title: Root Type for account-response
+      description: ''
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        last_name:
+          type: string
+        age:
+          format: int32
+          type: integer
+        document:
+          type: string
+      example:
+        id: d80a774b-e932-47c6-9593-2bcea6ad216b
+        name: Joe
+        last_name: Doe
+        age: 34
+        document: '212323213231'
+    card-response:
+      title: Root Type for card-response
+      description: ''
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        last_digits:
+          type: string
+      example:
+        id: d36820bf-2729-4f9c-9294-07d805d9bdfb
+        status: approved
+        last_digits: '2132'
+tags:
+  -
+    name: cards-webhook
+    description: Cards events notifications
+  -
+    name: cards
+    description: Cards management APIs
+  -
+    name: accounts
+    description: Accounts management
