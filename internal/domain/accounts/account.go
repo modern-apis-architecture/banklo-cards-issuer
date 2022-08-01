@@ -1,21 +1,22 @@
 package accounts
 
 type Account struct {
-	Name       string  `json:"name"`
-	LastName   string  `json:"last_name"`
-	MotherName string  `json:"mother_name"`
-	Document   string  `json:"document"`
-	BirthDate  string  `json:"birth_date"`
-	Address    Address `json:"address"`
-	Phone      Phone   `json:"phone"`
+	Id         string  `json:"id" bson:"_id"`
+	Name       string  `json:"name" bson:"name"`
+	LastName   string  `json:"last_name" bson:"last_name"`
+	MotherName string  `json:"mother_name" bson:"mother_name"`
+	Document   string  `json:"document" bson:"document"`
+	BirthDate  string  `json:"birth_date" bson:"birth_date"`
+	Address    Address `json:"address" bson:"address"`
+	Phone      Phone   `json:"phone" bson:"phone"`
 }
 
 type Address struct {
-	ZipCode string `json:"zip_code"`
-	Number  string `json:"number"`
+	ZipCode string `json:"zip_code" bson:"zip_code"`
+	Number  string `json:"number" bson:"number"`
 }
 
 type Phone struct {
-	Code   string `json:"code"`
-	Number string `json:"number"`
+	Code   string `json:"code" bson:"code"`
+	Number string `json:"number" bson:"number"`
 }
