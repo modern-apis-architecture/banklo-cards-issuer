@@ -4,20 +4,26 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type SubscriptionCollection mongo.Collection
-
-type AccountCollection mongo.Collection
-
-type CardCollection mongo.Collection
-
-func ProvideSubscriptionCollection(db *mongo.Database) (*mongo.Collection, error) {
-	return db.Collection("subscriptions"), nil
+type SubscriptionCollection struct {
+	Subs *mongo.Collection
 }
 
-func ProvideAccountCollection(db *mongo.Database) (*mongo.Collection, error) {
-	return db.Collection("accounts"), nil
+type AccountCollection struct {
+	Account *mongo.Collection
 }
 
-func ProvideCardCollection(db *mongo.Database) (*mongo.Collection, error) {
-	return db.Collection("cards"), nil
+type CardCollection struct {
+	Card *mongo.Collection
+}
+
+func ProvideSubscriptionCollection(db *mongo.Database) (*SubscriptionCollection, error) {
+	return &SubscriptionCollection{Subs: db.Collection("subscriptions")}, nil
+}
+
+func ProvideAccountCollection(db *mongo.Database) (*AccountCollection, error) {
+	return &AccountCollection{Account: db.Collection("accounts")}, nil
+}
+
+func ProvideCardCollection(db *mongo.Database) (*CardCollection, error) {
+	return &CardCollection{Card: db.Collection("cards")}, nil
 }

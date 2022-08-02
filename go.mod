@@ -7,7 +7,6 @@ require (
 	github.com/getkin/kin-openapi v0.97.0
 	github.com/google/wire v0.5.0
 	github.com/labstack/echo/v4 v4.7.2
-	github.com/modern-apis-architecture/ledger v0.0.0-20220724140607-e2a6ac74237b
 	go.mongodb.org/mongo-driver v1.10.0
 )
 
