@@ -50,6 +50,12 @@ paths:
                 ok:
                   value: ok
           description: Successfully subscribed to notifications about given cards
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-5xx-response'
+          description: "internal server error"
       summary: Subscribe to notifications about given card
     parameters:
       -
@@ -75,7 +81,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/create-account-response'
-          description: Acoount created
+          description: Account created
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-4xx-response'
+          description: Invalid request
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-5xx-response'
+          description: "internal server error"
       operationId: create-account
       summary: It creates accounts
   '/accounts/{id}/cards':
@@ -102,6 +120,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/create-card-response'
           description: Card creation will be processed
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-4xx-response'
+          description: Invalid request
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-5xx-response'
+          description: "internal server error"
       operationId: create-cards
       summary: It creates cards
   '/accounts/{id}':
@@ -122,6 +152,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/account-response'
           description: Account details
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-4xx-response'
+          description: account not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-5xx-response'
+          description: "internal server error"
       operationId: get-account
       summary: Get account details
   '/cards/{id}':
@@ -142,6 +184,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/card-response'
           description: Card details
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-4xx-response'
+          description: card not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-5xx-response'
+          description: card not found
       operationId: get-card
       summary: Get card details
     delete:
@@ -161,7 +215,7 @@ paths:
 components:
   schemas:
     card_id:
-      pattern: '`^[[:xdigit:]]{8}(?:\-[[:xdigit:]]{4}){3}\-[[:xdigit:]]{12}$`gm'
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
       type: string
     notification:
       required:
@@ -177,12 +231,20 @@ components:
             - denied
           type: string
     create-account-request:
-      title: Root Type for create-account-request
+      title: create-account-request
       description: ''
       type: object
+      required:
+        - personal_data
       properties:
         personal_data:
           type: object
+          required:
+            - name
+            - last_name
+            - mother_name
+            - document
+            - birth_date
           properties:
             name:
               type: string
@@ -197,6 +259,9 @@ components:
               type: string
             address:
               type: object
+              required:
+                - zip_code
+                - number
               properties:
                 zip_code:
                   type: string
@@ -204,6 +269,9 @@ components:
                   type: string
             phone:
               type: object
+              required:
+                - code
+                - number
               properties:
                 code:
                   type: string
@@ -223,17 +291,18 @@ components:
             code: '19'
             number: 22222-3333
     create-card-request:
-      title: Root Type for create-card-request
+      title: create-card-request
       description: ''
       type: object
+      required:
+        - name
       properties:
-        valid_until:
-          format: date
+        name:
           type: string
       example:
         valid_until: '2020-04-08'
     create-account-response:
-      title: Root Type for create-account-response
+      title: create-account-response
       description: ''
       type: object
       properties:
@@ -245,7 +314,7 @@ components:
         id: 2c54c06b-04b6-420a-820f-f2a9dda6af2f
         status: created
     create-card-response:
-      title: Root Type for create-card-response
+      title: create-card-response
       description: ''
       type: object
       properties:
@@ -276,7 +345,7 @@ components:
         age: 34
         document: '212323213231'
     card-response:
-      title: Root Type for card-response
+      title: card-response
       description: ''
       type: object
       properties:
@@ -290,6 +359,36 @@ components:
         id: d36820bf-2729-4f9c-9294-07d805d9bdfb
         status: approved
         last_digits: '2132'
+    error-4xx-response:
+      title:     error-4xx-response
+      description: ''
+      type: object
+      required:
+        - code
+        - description
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+      example:
+        code: 001
+        description: invalid date
+    error-5xx-response:
+      title:     error-5xx-response
+      description: ''
+      type: object
+      required:
+        - code
+        - description
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+      example:
+        code: 010
+        description: internal server error
 tags:
   -
     name: cards-webhook

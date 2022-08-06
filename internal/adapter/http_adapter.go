@@ -11,10 +11,10 @@ import (
 type HttpAdapter struct {
 	accountSvc *accountservice.AccountService
 	cardSvc    *cardservice.CardService
-	subsSvc    subscriptionservice.SubscriptionService
+	subsSvc    *subscriptionservice.SubscriptionService
 }
 
-func NewHttpAdapter(accountSvc *accountservice.AccountService, cardSvc *cardservice.CardService, subsSvc subscriptionservice.SubscriptionService) *HttpAdapter {
+func NewHttpAdapter(accountSvc *accountservice.AccountService, cardSvc *cardservice.CardService, subsSvc *subscriptionservice.SubscriptionService) *HttpAdapter {
 	return &HttpAdapter{
 		accountSvc: accountSvc,
 		cardSvc:    cardSvc,
@@ -27,29 +27,57 @@ func (ha *HttpAdapter) CreateAccount(ctx echo.Context) error {
 	if err := ctx.Bind(car); err != nil {
 		return err
 	}
-	_, err := ha.accountSvc.CreateAccount(car)
+	acc, err := ha.accountSvc.CreateAccount(car)
 	if err != nil {
-		return err
+		return ctx.JSON(500, api.Error5xxResponse{
+			Code:        "010",
+			Description: "Internal server error",
+		})
 	}
-
-	return nil
+	return ctx.JSON(201, acc)
 }
 
 func (ha *HttpAdapter) GetAccount(ctx echo.Context, id api.CardId) error {
+	acc, err := ha.accountSvc.Get(id)
+	if err != nil {
+		return ctx.JSON(500, api.Error5xxResponse{
+			Code:        "003",
+			Description: "internal error",
+		})
+	}
 
-	return nil
+	if acc == nil {
+		return ctx.JSON(404, api.Error4xxResponse{
+			Code:        "002",
+			Description: "Account not found",
+		})
+	}
+	return ctx.JSON(200, acc)
 }
-func (ha *HttpAdapter) CreateCards(ctx echo.Context, id api.CardId) error {
+func (ha *HttpAdapter) CreateCards(ctx echo.Context, accountId api.CardId) error {
 	ccr := &api.CreateCardRequest{}
 	if err := ctx.Bind(ccr); err != nil {
 		return err
 	}
-
-	return nil
+	cc, err := ha.cardSvc.Create(accountId, ccr)
+	if err != nil {
+		return ctx.JSON(400, api.Error4xxResponse{
+			Code:        "009",
+			Description: "Invalid data",
+		})
+	}
+	return ctx.JSON(201, cc)
 }
 
 func (ha *HttpAdapter) DeleteCard(ctx echo.Context, id api.CardId) error {
-	return nil
+	err := ha.cardSvc.Delete(id)
+	if err != nil {
+		return ctx.JSON(400, api.Error4xxResponse{
+			Code:        "009",
+			Description: "Invalid data",
+		})
+	}
+	return ctx.JSON(204, nil)
 }
 func (ha *HttpAdapter) GetCard(ctx echo.Context, id api.CardId) error {
 	return nil

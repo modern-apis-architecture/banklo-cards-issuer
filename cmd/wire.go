@@ -1,9 +1,11 @@
+//go:build wireinject
+// +build wireinject
+
 package main
 
 import (
 	"github.com/google/wire"
 	"github.com/modern-apis-architecture/banklo-cards-issuer/internal/adapter"
-	"github.com/modern-apis-architecture/banklo-cards-issuer/internal/api"
 	repository2 "github.com/modern-apis-architecture/banklo-cards-issuer/internal/domain/accounts/repository"
 	"github.com/modern-apis-architecture/banklo-cards-issuer/internal/domain/accounts/service"
 	"github.com/modern-apis-architecture/banklo-cards-issuer/internal/domain/cards/repository"
@@ -16,8 +18,8 @@ import (
 	"github.com/modern-apis-architecture/banklo-cards-issuer/internal/storage/mongo/subscriptions"
 )
 
-func buildAppContainer() (api.ServerInterface, error) {
-	wire.Build(mongo.NewDatabase, mongo.ProvideAccountCollection, mongo.ProvideCardCollection, mongo.ProvideCardCollection,
+func buildAppContainer() (*adapter.HttpAdapter, error) {
+	wire.Build(mongo.NewDatabase, mongo.ProvideAccountCollection, mongo.ProvideCardCollection, mongo.ProvideSubscriptionCollection,
 		cards.NewMongoCardRepository, accounts.NewMongoAccountRepository, subscriptions.NewMongoSubscriptionRepository,
 		wire.Bind(new(repository.CardRepository), new(*cards.MongoCardRepository)),
 		wire.Bind(new(repository3.SubscriptionRepository), new(*subscriptions.MongoSubscriptionRepository)),
