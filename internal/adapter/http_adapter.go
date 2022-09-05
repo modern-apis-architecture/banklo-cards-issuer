@@ -1,10 +1,12 @@
 package adapter
 
 import (
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/modern-apis-architecture/banklo-cards-issuer/internal/api"
 	accountservice "github.com/modern-apis-architecture/banklo-cards-issuer/internal/domain/accounts/service"
 	cardservice "github.com/modern-apis-architecture/banklo-cards-issuer/internal/domain/cards/service"
+	"github.com/modern-apis-architecture/banklo-cards-issuer/internal/domain/subscriptions"
 	subscriptionservice "github.com/modern-apis-architecture/banklo-cards-issuer/internal/domain/subscriptions/service"
 )
 
@@ -82,4 +84,25 @@ func (ha *HttpAdapter) DeleteCard(ctx echo.Context, id api.CardId) error {
 func (ha *HttpAdapter) GetCard(ctx echo.Context, id api.CardId) error {
 	return nil
 }
-func (ha *HttpAdapter) PostCardsIdSubscribe(ctx echo.Context, id api.CardId) error { return nil }
+func (ha *HttpAdapter) PostCardsIdSubscribe(ctx echo.Context, id api.CardId) error {
+	cardSub := &api.PostCardsIdSubscribeJSONRequestBody{}
+	if err := ctx.Bind(cardSub); err != nil {
+		return err
+	}
+	subId, _ := uuid.NewUUID()
+	subs := &subscriptions.Subscription{
+		Id:     subId.String(),
+		CardId: id,
+		Url:    cardSub.Url,
+		Token:  cardSub.Token,
+	}
+
+	err := ha.subsSvc.Store(subs)
+	if err != nil {
+		return ctx.JSON(400, api.Error4xxResponse{
+			Code:        "009",
+			Description: "Invalid subs data",
+		})
+	}
+	return ctx.JSON(201, subs)
+}
