@@ -16,7 +16,7 @@ type Account struct {
 
 type Address struct {
 	ZipCode string `json:"zip_code" bson:"zip_code"`
-	Number  string `json:"number" bson:"number"`
+	Number  string `json:"n	umber" bson:"number"`
 }
 
 type Phone struct {

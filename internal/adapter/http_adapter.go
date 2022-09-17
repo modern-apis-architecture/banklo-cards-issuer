@@ -82,8 +82,13 @@ func (ha *HttpAdapter) DeleteCard(ctx echo.Context, id api.CardId) error {
 	return ctx.JSON(204, nil)
 }
 func (ha *HttpAdapter) GetCard(ctx echo.Context, id api.CardId) error {
-	return nil
+	card, err := ha.cardSvc.Get(id)
+	if err != nil {
+		ctx.JSON(404, nil)
+	}
+	return ctx.JSON(200, card)
 }
+
 func (ha *HttpAdapter) PostCardsIdSubscribe(ctx echo.Context, id api.CardId) error {
 	cardSub := &api.PostCardsIdSubscribeJSONRequestBody{}
 	if err := ctx.Bind(cardSub); err != nil {
