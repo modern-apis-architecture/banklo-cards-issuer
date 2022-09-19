@@ -26,18 +26,9 @@ func main() {
 
 	// Create an instance of our handler which satisfies the generated interface
 	cardIssuer, err := buildAppContainer()
-
-	// This is how you set up a basic Echo router
 	e := echo.New()
-	// Log all requests
 	e.Use(echomiddleware.Logger())
-	// Use our validation middleware to check all requests against the
-	// OpenAPI schema.
 	e.Use(middleware.OapiRequestValidator(swagger))
-
-	// We now register our petStore above as the handler for the interface
 	api.RegisterHandlers(e, cardIssuer)
-
-	// And we serve HTTP until the world ends.
 	e.Logger.Fatal(e.Start(fmt.Sprintf("0.0.0.0:%d", *port)))
 }
