@@ -48,6 +48,8 @@ Selector labels
 {{- define "banklo-cards-issuer.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "banklo-cards-issuer.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app: banklo-cards-issuer
+version: v1
 {{- end }}
 
 {{/*
