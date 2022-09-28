@@ -6,11 +6,12 @@ spec:
   hosts:
     - banklo-cards-issuer
   http:
-    - match:
-        - uri:
-            prefix: /cards
-        - uri:
-          - prefix: /accounts
+    - name: banklo-cards-issuer
+      match:
+      - uri:
+         prefix: /cards
+      - uri:
+         prefix: /accounts
       route:
         - destination:
             host: banklo-cards-issuer
