@@ -6,7 +6,12 @@ spec:
   hosts:
     - {{ include "banklo-cards-issuer.fullname" . }}
   http:
-    - route:
+    - fault:
+        abort:
+          httpStatus: 500
+          percentage:
+            value: 20
+      route:
         - destination:
             host: {{ include "banklo-cards-issuer.fullname" . }}
             subset: v1
