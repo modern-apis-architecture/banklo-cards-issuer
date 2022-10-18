@@ -5,7 +5,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: coinsure-cards
+      app: banklo-cards-issuer
   rules:
     - from:
         - source:
